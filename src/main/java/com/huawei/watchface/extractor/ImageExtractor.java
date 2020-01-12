@@ -1,3 +1,5 @@
+package com.huawei.watchface.extractor;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -11,25 +13,21 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class Main {
-    public static final byte[] sign = new byte[]{85, 85, 85, 85};
-    public static Color currentColor;
-    public static int currentColorCount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    public Main() {
-    }
+/**
+ * Extract images from *.hwt or com.huawei.watchface files
+ */
+public class ImageExtractor {
 
-    public static void main(String[] args) {
-        try {
-            read(args[0]);
-        } catch (IOException var2) {
-            var2.printStackTrace();
-        }
+    private Logger log = LoggerFactory.getLogger(getClass());
 
-    }
+    private final byte[] sign = new byte[]{85, 85, 85, 85};
+    private Color currentColor;
+    private int currentColorCount;
 
-    public static void read(String filePath) throws IOException {
-        File binFile = new File(filePath);
+    public void read(File binFile, File outputDir) throws IOException {
 
         DataInputStream dataIn = null;
         ZipInputStream zis = null;
@@ -46,6 +44,10 @@ public class Main {
                     zipEntry = zis.getNextEntry();
                 }
             }
+            if (!foundEntry) {
+                log.error("The archive {} doesn't contain com.huawei.watchface file", binFile);
+                return;
+            }
         } else {
             dataIn = new DataInputStream(new FileInputStream(binFile));
         }
@@ -60,7 +62,7 @@ public class Main {
             }
 
             if (signFlag >= 4) {
-                System.out.println("sign position->" + i);
+                log.info("sign position->" + i);
                 break;
             }
         }
@@ -69,11 +71,9 @@ public class Main {
         dataIn.readByte();
         dataIn.readByte();
         dataIn.readByte();
-        String folderPath = binFile.getAbsolutePath() + "_extra/";
-        File Folder = new File(folderPath);
-        Folder.mkdir();
-        List<BufferedImage> imsList = new ArrayList();
-        System.out.println("Start parsing pictures");
+        outputDir.mkdir();
+        List<BufferedImage> imsList = new ArrayList<>();
+        log.info("Start parsing pictures");
         boolean errflag = false;
 
         while (!errflag) {
@@ -85,15 +85,14 @@ public class Main {
             }
         }
 
-        System.out.println();
-        System.out.println("Start outputting pictures");
+        log.info("Start outputting pictures");
 
         for (int i = 0; i < imsList.size(); ++i) {
-            System.out.println("Start outputting picture " + i);
-            ImageIO.write((RenderedImage) imsList.get(i), "png", new File(folderPath + "\\" + i + ".png"));
+            log.info("Start outputting picture {}", i);
+            ImageIO.write((RenderedImage) imsList.get(i), "png", new File(outputDir, i + ".png"));
         }
 
-        System.out.println("End of output pictures");
+        log.info("End of output pictures");
         if (zis != null) {
             zis.closeEntry();
             zis.close();
@@ -101,21 +100,15 @@ public class Main {
         dataIn.close();
     }
 
-    public static BufferedImage readImg(DataInputStream dataIn) throws IOException {
-        System.out.println();
-        System.out.print("Header->");
-        System.out.print(Integer.toHexString(dataIn.readUnsignedByte()));
-        System.out.print(Integer.toHexString(dataIn.readUnsignedByte()));
-        System.out.print(Integer.toHexString(dataIn.readUnsignedByte()));
-        System.out.print(Integer.toHexString(dataIn.readUnsignedByte()));
-        System.out.println();
+    private BufferedImage readImg(DataInputStream dataIn) throws IOException {
+        log.info("Header->{}{}{}{}", Integer.toHexString(dataIn.readUnsignedByte()), Integer.toHexString(dataIn.readUnsignedByte()), Integer.toHexString(dataIn.readUnsignedByte()), Integer.toHexString(dataIn.readUnsignedByte()));
         int width1 = dataIn.readUnsignedByte();
         int width2 = dataIn.readUnsignedByte();
         int height1 = dataIn.readUnsignedByte();
         int height2 = dataIn.readUnsignedByte();
         int width = width1 + (width2 << 8);
         int height = height1 + (height2 << 8);
-        System.out.print("Width->" + width + ",Height->" + height);
+        log.info("Width->{}, Height->{}", width, height);
         BufferedImage img = new BufferedImage(width, height, 2);
 
         for (int i = 0; i < height; ++i) {
@@ -128,7 +121,7 @@ public class Main {
         return img;
     }
 
-    public static Color readColor(DataInputStream dataIn) throws IOException {
+    private Color readColor(DataInputStream dataIn) throws IOException {
         if (currentColorCount > 0) {
             --currentColorCount;
             return currentColor;
