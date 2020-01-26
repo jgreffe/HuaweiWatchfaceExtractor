@@ -6,7 +6,7 @@
 
     <groupId>com.huawei.watchface.extractor</groupId>
     <artifactId>HuaweiWatchfaceExtractor</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
 
     <licenses>
         <license>
@@ -96,10 +96,10 @@
                                 <minVersion>1.8.0</minVersion>
                             </jre>
                             <versionInfo>
-                                <fileVersion>0.0.0.1</fileVersion>
+                                <fileVersion>1.0.1.0</fileVersion>
                                 <txtFileVersion>${project.version}</txtFileVersion>
                                 <fileDescription>${project.name}</fileDescription>
-                                <productVersion>0.0.0.1</productVersion>
+                                <productVersion>1.0.1.0</productVersion>
                                 <txtProductVersion>${project.version}</txtProductVersion>
                                 <copyright>GPLv3</copyright>
                                 <productName>${project.name}</productName>
