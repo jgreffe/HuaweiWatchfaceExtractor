@@ -74,7 +74,7 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.5.1</version>
+                <version>1.7</version>
                 <executions>
                     <execution>
                         <id>l4j-clui</id>
@@ -101,7 +101,7 @@
                                 <fileDescription>${project.name}</fileDescription>
                                 <productVersion>0.0.0.1</productVersion>
                                 <txtProductVersion>${project.version}</txtProductVersion>
-                                <copyright>copyleft</copyright>
+                                <copyright>GPLv3</copyright>
                                 <productName>${project.name}</productName>
                                 <internalName>HuaweiWatchfaceExtractor</internalName>
                                 <originalFilename>HuaweiWatchfaceExtractor-${project.version}.exe</originalFilename>
